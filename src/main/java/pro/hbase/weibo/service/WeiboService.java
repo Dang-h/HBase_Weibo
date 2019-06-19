@@ -62,4 +62,22 @@ public class WeiboService {
         dao.putCells(Names.TABLE_INBOX, fansId, Names.INBOX_FAMILY_DATA, star, rowKey);
 
     }
+
+    public void follow(String fans, String star) throws IOException {
+
+        // 1. 向relation表中插入两条数据
+        String rowKey1 = fans + ":follow:" + star;
+        String rowKey2 = star + ":followedby:" + fans;
+        String time = System.currentTimeMillis() + "";
+
+        dao.putCell(Names.TABLE_RELATION, rowKey1, Names.RELATION_FAMILY_DATA, Names.RELATION_COLUMN_TIME, time);
+        dao.putCell(Names.TABLE_RELATION, rowKey2, Names.RELATION_FAMILY_DATA, Names.RELATION_COLUMN_TIME, time);
+
+        // 2 从weibo表中获取star近期weiboId（3条）
+        String startRow = star;
+        String stopRow = star + "_|";
+        dao.getRowKeyByRange(Names.TABLE_WEIBO, startRow, stopRow);
+
+        // 向inbox虫插入数据loading。。。。。
+    }
 }

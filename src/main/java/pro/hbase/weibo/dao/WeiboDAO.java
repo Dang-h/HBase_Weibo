@@ -165,25 +165,56 @@ public class WeiboDAO {
 
             // 4 遍历rowKeys同时创建put对象，再把put放入List<Put>
             for (String rowKey : rowKeys) {
-
                 //5
                 Put put = new Put(Bytes.toBytes(rowKey));
-
                 //7
                 put.addColumn(Bytes.toBytes(family), Bytes.toBytes(column), Bytes.toBytes(value));
-
                 //6
                 puts.add(put);
             }
-
             // 2. 传入List<Put>
             table.put(puts);
-
         } finally {
-
             //8
             table.close();
         }
+
+    }
+
+    public List<String> getRowKeyByRange(String tableName, String startRow, String stopRow) throws IOException {
+
+        // 1.
+        Table table = connection.getTable(TableName.valueOf(tableName));
+
+        // 7.
+        ArrayList<String> list = new ArrayList<>();
+        ResultScanner scanner = null;
+
+        try {
+            // 3.
+            Scan scan = new Scan(Bytes.toBytes(startRow), Bytes.toBytes(stopRow));
+
+            // 2.
+            scanner = table.getScanner(scan);
+
+            // 4.
+            for (Result result : scanner) {
+                // 5.
+                byte[] row = result.getRow();
+                // 6.
+                String rowKey = Bytes.toString(row);
+                // 8.
+                list.add(rowKey);
+            }
+        } finally {
+
+            // 9.
+            table.close();
+            scanner.close();
+        }
+
+
+        return list;
 
     }
 }

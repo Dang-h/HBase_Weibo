@@ -20,8 +20,8 @@ public class WeiboController {
     }
 
     //6) 添加关注用户
-    public void follow(String fans, String star) {
-
+    public void follow(String fans, String star) throws IOException {
+        service.follow(fans, star);
     }
 
     //7) 移除（取关）用户
