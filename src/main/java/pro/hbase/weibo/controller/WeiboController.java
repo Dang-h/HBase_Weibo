@@ -9,13 +9,14 @@ public class WeiboController {
 
     private WeiboService service = new WeiboService();
 
+    // 初始化，建表
     public void init() throws IOException {
         service.init();
     }
 
     //5) 发布微博内容
-    public void publish(String star, String content) {
-
+    public void publish(String star, String content) throws IOException {
+        service.publish(star, content);
     }
 
     //6) 添加关注用户
