@@ -1,21 +1,42 @@
 package pro.hbase.weibo.controller;
 
+import pro.hbase.weibo.service.WeiboService;
+
+import java.io.IOException;
+import java.util.List;
+
 public class WeiboController {
 
-//1) 创建命名空间以及表名的定义
+    private WeiboService service = new WeiboService();
 
-//2) 创建微博内容表
+    public void init() throws IOException {
+        service.init();
+    }
 
-//3) 创建用户关系表
+    //5) 发布微博内容
+    public void publish(String star, String content) {
 
-//4) 创建用户微博内容接收邮件表
+    }
 
-//5) 发布微博内容
+    //6) 添加关注用户
+    public void follow(String fans, String star) {
 
-//6) 添加关注用户
+    }
 
-//7) 移除（取关）用户
+    //7) 移除（取关）用户
+    public void unFollow(String fans, String star) {
 
-//8) 获取关注的人的微博内容
+    }
+
+    //8) 获取关注的人的微博内容
+    // 8.1 获取某个明星的所有weibo
+    public List<String> getAllWeiboByUserId(String star) {
+        return null;
+    }
+
+    // 8.2 获取关注的所有star的近期weibo（3条）
+    public List<String> getAllRecentWeibos(String fans) {
+        return null;
+    }
 
 }
