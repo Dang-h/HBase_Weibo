@@ -73,11 +73,21 @@ public class WeiboService {
         dao.putCell(Names.TABLE_RELATION, rowKey1, Names.RELATION_FAMILY_DATA, Names.RELATION_COLUMN_TIME, time);
         dao.putCell(Names.TABLE_RELATION, rowKey2, Names.RELATION_FAMILY_DATA, Names.RELATION_COLUMN_TIME, time);
 
-        // 2 从weibo表中获取star近期weiboId（3条）
+        // 2 从weibo表中获取star所有weiboId（3条）
         String startRow = star;
         String stopRow = star + "_|";
-        dao.getRowKeyByRange(Names.TABLE_WEIBO, startRow, stopRow);
+        List<String> list = dao.getRowKeyByRange(Names.TABLE_WEIBO, startRow, stopRow);
 
-        // 向inbox虫插入数据loading。。。。。
+        // 3. 取近期几条
+        // 如果微博不足3条，返回0
+        int fromIndex = list.size() > Names.INBOX_DATA_VERSIONS ? list.size() - Names.INBOX_DATA_VERSIONS : 0;
+        List<String> recentWeibos = list.subList(fromIndex, list.size());
+
+        // 4. 向fans的inbox表种插入star近期weiboId
+        // 先插最早的，List中顺序为从早到晚
+        for (String recentWeibo : recentWeibos) {
+            dao.putCell(Names.TABLE_INBOX, fans, Names.INBOX_FAMILY_DATA, star,recentWeibo);
+
+        }
     }
 }
