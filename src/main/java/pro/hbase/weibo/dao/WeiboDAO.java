@@ -50,12 +50,27 @@ public class WeiboDAO {
         }
     }
 
+    /**
+     * 创建weibo和relation表
+     *
+     * @param tableName
+     * @param families
+     * @throws IOException
+     */
     public void createTable(String tableName, String... families) throws IOException {
 
         createTable(tableName, 1, families);
 
     }
 
+    /**
+     * 创建weibo内容接收inbox表
+     *
+     * @param tableName
+     * @param versions
+     * @param families
+     * @throws IOException
+     */
     public void createTable(String tableName, Integer versions, String... families) throws IOException {
 
         // 1.
@@ -89,6 +104,16 @@ public class WeiboDAO {
     }
 
 
+    /**
+     * 在weibo表中插入数据
+     *
+     * @param tableName
+     * @param rowKey
+     * @param family
+     * @param column
+     * @param value
+     * @throws IOException
+     */
     public void putCell(String tableName, String rowKey, String family, String column, String value) throws IOException {
 
         // 1.
@@ -111,6 +136,14 @@ public class WeiboDAO {
 
     }
 
+    /**
+     * 从relation表中获取star的fansId
+     *
+     * @param tableName
+     * @param prefix
+     * @return
+     * @throws IOException
+     */
     public List<String> getRowKeyByPrefix(String tableName, String prefix) throws IOException {
 
         // 8
@@ -154,6 +187,16 @@ public class WeiboDAO {
 
     }
 
+    /**
+     * 向所有fans的inbox中插入本条weibo的Id
+     *
+     * @param tablName
+     * @param rowKeys
+     * @param family
+     * @param column
+     * @param value
+     * @throws IOException
+     */
     public void putCells(String tablName, ArrayList<String> rowKeys, String family, String column, String value) throws IOException {
 
         // 1
@@ -181,6 +224,15 @@ public class WeiboDAO {
 
     }
 
+    /**
+     * 从weibo表中获取star所有weiboId
+     *
+     * @param tableName
+     * @param startRow
+     * @param stopRow
+     * @return
+     * @throws IOException
+     */
     public List<String> getRowKeyByRange(String tableName, String startRow, String stopRow) throws IOException {
 
         // 1.
@@ -218,6 +270,13 @@ public class WeiboDAO {
 
     }
 
+    /**
+     * 删除relation表中两条数据；
+     *
+     * @param tableName
+     * @param rowKey
+     * @throws IOException
+     */
     public void deleteRow(String tableName, String rowKey) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         try {
@@ -228,6 +287,15 @@ public class WeiboDAO {
         }
     }
 
+    /**
+     * 删除inbox的一列
+     *
+     * @param tableName
+     * @param rowKey
+     * @param family
+     * @param column
+     * @throws IOException
+     */
     public void deleteCells(String tableName, String rowKey, String family, String column) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         try {
@@ -240,6 +308,16 @@ public class WeiboDAO {
         }
     }
 
+    /**
+     * 根据rowKey获取多行中同一列的值
+     *
+     * @param tableName
+     * @param prefix
+     * @param family
+     * @param column
+     * @return
+     * @throws IOException
+     */
     public List<String> getCellsByPrefix(String tableName, String prefix, String family, String column) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         ArrayList<String> list;
@@ -265,6 +343,15 @@ public class WeiboDAO {
         return list;
     }
 
+    /**
+     * 根据rowKey获取一个列族的数据
+     *
+     * @param tableName
+     * @param rowKey
+     * @param family
+     * @return
+     * @throws IOException
+     */
     public List<String> getFamilyByRowKey(String tableName, String rowKey, String family) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         ArrayList<String> list = new ArrayList<>();
@@ -286,6 +373,16 @@ public class WeiboDAO {
         return list;
     }
 
+    /**
+     * 获取多行中相同列的数据
+     *
+     * @param tableName
+     * @param rowKeys
+     * @param family
+     * @param column
+     * @return
+     * @throws IOException
+     */
     public List<String> getCellsByRowKey(String tableName, List<String> rowKeys, String family, String column) throws IOException {
         Table table = connection.getTable(TableName.valueOf(tableName));
         ArrayList<String> weibos = null;

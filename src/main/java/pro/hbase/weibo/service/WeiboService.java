@@ -13,6 +13,11 @@ public class WeiboService {
     private WeiboDAO dao = new WeiboDAO();
 
 
+    /**
+     * 初始化表格
+     *
+     * @throws IOException
+     */
     public void init() throws IOException {
 
         // 1. 创建命名空间及表名的定义
@@ -24,18 +29,25 @@ public class WeiboService {
         // 3. 创建用户关系表
         dao.createTable(Names.TABLE_RELATION, Names.RELATION_FAMILY_DATA);
 
-        // 4. 创建用户微博内容接收邮件表
+        // 4. 创建用户微博内容接收inbox表
         dao.createTable(Names.TABLE_INBOX, Names.INBOX_DATA_VERSIONS, Names.INBOX_FAMILY_DATA);
     }
 
 
+    /**
+     * 发布weibo
+     *
+     * @param star
+     * @param content
+     * @throws IOException
+     */
     public void publish(String star, String content) throws IOException {
 
         // 1. 在weibo表插入数据
         String rowKey = star + "_" + System.currentTimeMillis();
         dao.putCell(Names.TABLE_WEIBO, rowKey, Names.WEIBO_FAMILY_DATA, Names.WEIBO_COLUMN_CONTENT, content);
 
-        // 2. 获取relation获取star所有fansId
+        // 2. 从relation表中获取star的fansId
         //prefix => star:followedby:fans
         String prefix = star + ":followedby:";
         List<String> list = dao.getRowKeyByPrefix(Names.TABLE_RELATION, prefix);
@@ -56,13 +68,20 @@ public class WeiboService {
             fansId.add(split[2]);
         }
 
-        // 5. 想所有fans的inbox中插入本条weibo的Id;
+        // 5. 向所有fans的inbox中插入本条weibo的Id;
         // 每一个fansId，相同的列族，相同的列，相同的内容
         // 往多行插入相同的列,批量插入
         dao.putCells(Names.TABLE_INBOX, fansId, Names.INBOX_FAMILY_DATA, star, rowKey);
 
     }
 
+    /**
+     * 关注用户
+     *
+     * @param fans
+     * @param star
+     * @throws IOException
+     */
     public void follow(String fans, String star) throws IOException {
 
         // 1. 向relation表中插入两条数据
@@ -91,6 +110,13 @@ public class WeiboService {
         }
     }
 
+    /**
+     * 取关
+     *
+     * @param fans
+     * @param star
+     * @throws IOException
+     */
     public void unFollow(String fans, String star) throws IOException {
         // 1. 删除relation表中两条数据
         String rowKey1 = fans + ":follow:" + star;
@@ -102,11 +128,25 @@ public class WeiboService {
         dao.deleteCells(Names.TABLE_INBOX, fans, Names.INBOX_FAMILY_DATA, star);
     }
 
+    /**
+     * 获取某个star的所有weibo
+     *
+     * @param star
+     * @return
+     * @throws IOException
+     */
     public List<String> getAllWeiboByUserId(String star) throws IOException {
         String prefix = star;
         return dao.getCellsByPrefix(Names.TABLE_WEIBO, prefix, Names.WEIBO_FAMILY_DATA, Names.WEIBO_COLUMN_CONTENT);
     }
 
+    /**
+     * 获取近期weibo
+     *
+     * @param fans
+     * @return
+     * @throws IOException
+     */
     public List<String> getAllRecentWeibos(String fans) throws IOException {
         // 1. 从Inbox中获取star近期weiboId
         List<String> list = dao.getFamilyByRowKey(Names.TABLE_INBOX, fans, Names.INBOX_FAMILY_DATA);
