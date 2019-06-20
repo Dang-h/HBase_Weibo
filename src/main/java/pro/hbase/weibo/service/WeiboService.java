@@ -90,4 +90,28 @@ public class WeiboService {
 
         }
     }
+
+    public void unFollow(String fans, String star) throws IOException {
+        // 1. 删除relation表中两条数据
+        String rowKey1 = fans + ":follow:" + star;
+        String rowKey2 = star + ":followedby:" + fans;
+        dao.deleteRow(Names.TABLE_RELATION, rowKey1);
+        dao.deleteRow(Names.TABLE_RELATION, rowKey2);
+
+        // 2. 删除inbox中的一列
+        dao.deleteCells(Names.TABLE_INBOX, fans, Names.INBOX_FAMILY_DATA, star);
+    }
+
+    public List<String> getAllWeiboByUserId(String star) throws IOException {
+        String prefix = star;
+        return dao.getCellsByPrefix(Names.TABLE_WEIBO, prefix, Names.WEIBO_FAMILY_DATA, Names.WEIBO_COLUMN_CONTENT);
+    }
+
+    public List<String> getAllRecentWeibos(String fans) throws IOException {
+        // 1. 从Inbox中获取star近期weiboId
+        List<String> list = dao.getFamilyByRowKey(Names.TABLE_INBOX, fans, Names.INBOX_FAMILY_DATA);
+
+        // 2. 根据weiboId从weibo表查询内容
+        return dao.getCellsByRowKey(Names.TABLE_WEIBO, list, Names.WEIBO_FAMILY_DATA, Names.WEIBO_COLUMN_CONTENT);
+    }
 }

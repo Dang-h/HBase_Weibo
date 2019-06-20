@@ -25,19 +25,19 @@ public class WeiboController {
     }
 
     //7) 移除（取关）用户
-    public void unFollow(String fans, String star) {
-
+    public void unFollow(String fans, String star) throws IOException {
+        service.unFollow(fans, star);
     }
 
     //8) 获取关注的人的微博内容
     // 8.1 获取某个明星的所有weibo
-    public List<String> getAllWeiboByUserId(String star) {
-        return null;
+    public List<String> getAllWeiboByUserId(String star) throws IOException {
+        return service.getAllWeiboByUserId(star);
     }
 
-    // 8.2 获取关注的所有star的近期weibo（3条）
-    public List<String> getAllRecentWeibos(String fans) {
-        return null;
+    // 8.2 获取fans关注的所有star的近期weibo（3条）
+    public List<String> getAllRecentWeibos(String fans) throws IOException {
+       return service.getAllRecentWeibos(fans);
     }
 
 }

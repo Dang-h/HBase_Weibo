@@ -1,10 +1,10 @@
 package pro.hbase.weibo.dao;
 
-import javafx.scene.control.Tab;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
+import pro.hbase.weibo.constant.Names;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -216,5 +216,98 @@ public class WeiboDAO {
 
         return list;
 
+    }
+
+    public void deleteRow(String tableName, String rowKey) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        try {
+            Delete delete = new Delete(Bytes.toBytes(rowKey));
+            table.delete(delete);
+        } finally {
+            table.close();
+        }
+    }
+
+    public void deleteCells(String tableName, String rowKey, String family, String column) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        try {
+            Delete delete = new Delete(Bytes.toBytes(rowKey));
+            delete.addColumns(Bytes.toBytes(family), Bytes.toBytes(column));
+            table.delete(delete);
+        } finally {
+
+            table.close();
+        }
+    }
+
+    public List<String> getCellsByPrefix(String tableName, String prefix, String family, String column) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        ArrayList<String> list;
+        ResultScanner scanner = null;
+        try {
+            list = new ArrayList<>();
+            Scan scan = new Scan();
+            // 前缀过滤器
+            scan.setRowPrefixFilter(Bytes.toBytes(prefix));
+            // 指定要获取的列
+            scan.addColumn(Bytes.toBytes(family), Bytes.toBytes(column));
+            scanner = table.getScanner(scan);
+            for (Result result : scanner) {
+                Cell[] cells = result.rawCells();
+                // 克隆value
+                list.add(Bytes.toString(CellUtil.cloneValue(cells[0])));
+            }
+        } finally {
+
+            scanner.close();
+            table.close();
+        }
+        return list;
+    }
+
+    public List<String> getFamilyByRowKey(String tableName, String rowKey, String family) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        ArrayList<String> list = new ArrayList<>();
+
+        try {
+            Get get = new Get(Bytes.toBytes(rowKey));
+            get.setMaxVersions(Names.INBOX_DATA_VERSIONS);
+            get.addFamily(Bytes.toBytes(family));
+            Result result = table.get(get);
+
+            for (Cell cell : result.rawCells()) {
+                list.add(Bytes.toString(CellUtil.cloneValue(cell)));
+            }
+
+        } finally {
+
+            table.close();
+        }
+        return list;
+    }
+
+    public List<String> getCellsByRowKey(String tableName, List<String> rowKeys, String family, String column) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        ArrayList<String> weibos = null;
+        try {
+            ArrayList<Get> gets = new ArrayList<>();
+            weibos = new ArrayList<>();
+            for (String rowKey : rowKeys) {
+                Get get = new Get(Bytes.toBytes(rowKey));
+                get.addColumn(Bytes.toBytes(family), Bytes.toBytes(column));
+                gets.add(get);
+            }
+
+            Result[] results = table.get(gets);
+            for (Result result : results) {
+                String weibo = Bytes.toString(CellUtil.cloneValue(result.rawCells()[0]));
+                weibos.add(weibo);
+            }
+        } finally {
+
+            table.close();
+        }
+
+        return weibos;
     }
 }
